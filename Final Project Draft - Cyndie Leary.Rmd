@@ -1,0 +1,184 @@
+---
+title: "Final Project Draft"
+author: "Cyndie Leary"
+date: "5/3/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Intro (With picture of Thor!)
+
+```{r Photo 1 , echo=FALSE, warning=FALSE}
+library(knitr)
+knitr::include_graphics('C:/Users/brney/Dropbox/Grad Program/Foundations of Data Analysis SEIS631/thor3.png')
+
+```
+
+## What
+We show my dog, Thor, the Rhodesian Ridgeback in conformation.  I would like to know the probability of him winning at each event. Does he have a better chance than other dogs? Once I have his overall probability, I will check what his probability is if the event is outside versus inside.  Or if he has a male judge versus a female judge.  And combining those, does he do better with a male or female judge when he is inside or outside.
+
+## Why
+I think it would just be fun to try and predict if he will win an event that is very subjective.  Winning very much depends on the specific dogs that are entered, as well as each judge that is judging.  However, since we show locally, we do show against primarily the same dogs for each event.
+
+## How
+We have historical data that shows how many times he has won (gets Best of Breed) against a given number of dogs.
+Data would look like:
+Event1,  5 dogs entered:  Result = Lost
+Event2, 6 dogs entered: Result = Won
+Thor obviously has the best probability of winning when he is the only dog.  
+
+# Body
+
+## Brief introduction of Dog Shows ## 
+A little background about confirmation dog shows.  For each breed, dogs are always separated by Male (Dogs) and Female (Bitches).  Then after that, they are separated into classes (various puppy classes by age, Bred-by exhibitor, open, etc) to determine the best in each class. For each event, the winners from each class go into the ring again to decide Winner's Dog or Winner's Bitch.  A dog earns points based on the number of other dogs they beat in the class.  Once they have accumulated 25 points (with other stipulations), they become a "champion" or "Special".  For each event, once all the class dogs and winners have competed, the Winner's Dog and Winner's Bitch go into the ring with all of the Specials (dogs that have previously earned their championship).  These dogs then compete for Best of Breed.  There are other awards they can get at this time as well, but the Best of Breed (BOB) winner goes on to the group ring to compete against other BOB winners in the same group (Hound, Working, Sporting, Non-Sporting, Toy, Terrier, and herding).  Then the 1st place winner of each of those groups then compete for Best in Show.  
+
+## Data I selected: 
+
+For Thor (his full kennel name is **GCHB CH Hilltop's Conquering The World**), he has earned his Bronze Grand Championship.  So, for the data that I am pulling from, I am only pulling it from when he first became a champion and competed in the Best of Breed class.  I have also excluded the count of the "Winners", in the BOB ring, as I want to only see how Thor ranks against other champion dogs.  I have also only counted a WIN as when he was awarded a Best of Breed, although he has earned other awards while in the Best of Breed ring (Best of Opposite Sex, Select Dog, etc).  I also did not include any wins he got in the group ring or in the Best of Show rings.
+
+## Collecting Data and bringing it into R
+I have been manually collecting data in Excel since we started showing dogs (I have always been a data nerd!).  So I did parse down the data as explained above and saved it into an Excel file.  Then I used the commands below to bring it into R
+
+First I downloaded this package
+install.packages("readxl")
+
+```{r warning=FALSE}
+library("readxl")
+```
+Then brought in the data:
+
+```{r}
+Thor_Data <- read_excel("Thor Data.xlsx")
+```
+I found this instruction on the following website:
+[Importing Excel Files into R using readxl package](http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r)
+
+Thor won 12 times out of 52 shows.  So his probability of winning is 
+```{r echo=TRUE}
+ProbThorWin <- 12/52
+ProbThorWin
+```
+
+Next, I wanted to count the number of times he had a male judge or a female judge.
+```{r}
+table(Thor_Data$`Judge (M/F)`)
+```
+Which, I was surprised at the even split.  We will determine which he won with more later.
+
+Also, I wanted to see how many shows Thor was in where he was outside versus inside.
+```{r}
+table(Thor_Data$`Inside/Outside`)
+```
+I was also surprised at this result.  And we will also calculate how often he won for each as well.
+
+I created a subset of just his wins
+```{r}
+Thor_WinData <- subset(Thor_Data, Thor_Data$`Won (1=Y/0=N)` >= 1)
+```
+And then repeated the counts of Judges and Venue location
+
+```{r}
+table(Thor_WinData$`Judge (M/F)`)
+table(Thor_WinData$`Inside/Outside`)
+```
+Interesting that those counts are balanced in the same way.  
+
+So it seems that Thor slightly prefers to show to females and prefers to be inside.  But does he win more when both of those are true?
+
+Creating another subset of indoor/outdoor wins.
+```{r}
+Thor_VenueWin <- subset(Thor_WinData, Thor_WinData$`Inside/Outside` =="Inside")
+```
+
+And another count of judges:
+```{r}
+table(Thor_VenueWin$`Judge (M/F)`)
+
+```
+So this shows, of his 12 total wins, 7 of them were inside, and 6 of those were given to him by a female judge. 
+
+I can kind of conclude from this that Thor prefers to be inside and prefers Female judges, in order for him to show is best.  Or conversly, more female judges prefer Thor, and see his movement better when he is inside.  
+
+But let's look at the probability to verify.
+
+We saw earlier, that Gender of judge or location of event were both split in half, so their probabilities will all be the same.
+
+```{r}
+ProbFemale <- 26/52
+ProbFemale
+ProbMale <- 26/52
+ProbMale
+ProbInside <- 26/52
+ProbInside
+ProbOutside <- 26/52
+ProbOutside
+```
+Using values from above, we can also calculate the conditional probability of Thor winning under each of those situations
+
+```{r}
+ProbWinFemale <- 7/52
+ProbWinMale <- 5/52
+ProbWinInside <- 7/52
+ProbWinOutside <- 5/52
+ProbWinFemale
+ProbWinMale
+ProbWinInside
+ProbWinOutside
+```
+Using those numbers as the base numbers, we can now calculate inside/outside (recall they have the same proportions as male female)
+```{r}
+ProbThorWinFemaleInside <- ProbWinFemale + ProbWinInside
+ProbThorWinFemaleOutside <- ProbWinFemale + ProbWinOutside
+ProbThorWinMaleInside <- ProbWinMale + ProbWinInside
+ProbThorWinMaleOutside <- ProbWinMale + ProbWinOutside
+ProbThorWinFemaleInside
+ProbThorWinFemaleOutside
+ProbThorWinMaleInside
+ProbThorWinMaleOutside
+```
+I thought about trying to see how Thor stacked up against the overall probabilty, but I am not sure if I am calculating that correctly.  If I take the probability of winning at any event, and take the average, is that overall probability?  In my dataset, I have that calculated as 1(winner)/Dogs in BOB.  
+
+```{r}
+mean(1/Thor_Data$`Dogs in BOB`)
+```
+I do struggle with interpreting that.  I would look at that and say, any dog has about an 18% chance of winning. And based on what I calculated Thor's probabilty of winning based on the times he won in the 52 events (12/52), I show he has a 23% chance of winning.  But I am not sure if that is the correct way.  
+
+# Topics From Class
+
+## R Markdown: 
+I was introduced to R and R Markdown in this class.  I like it quite a bit.  I used Juniper Notebooks in my Python class, but that didn't seem to have as much functionality, or we didn't get that far into it. I explored how to add pictures to my R Markdown and was happy that I was able to figure that out!  Still need to do some more investigation on how to rotate them or change their size, but I got them to work for this exercise.
+
+## Github:
+I very briefly used Github in my Python class as well.  But mostly for pulling down data.  We also explored using it for our final group project, but found it too confusing for many of us who were new to using it.  I suspect that as I continue down my Masters degree, I will be using Github far more and look forward to learning it.
+
+## Probabilty:
+Probability was obviously the basis of my project.  Although, I am still confused sometimes with probability versus proportions.  
+## Joint Probabilites:
+While I was working on this I went back to the book, amd reviewed Joint Probabilities and created a table for myself to help check my answers.  I was trying to figure out how, without just uploading the data, to get it into R Markdown, but have not suceeded in that yet   
+
+## Conditional Probabilities:
+Again, going to the book to confirm what I was calculating, I reviewed Conditional Probabalities that shows the outcome A (Thor Winning) give Condition B (Female Judge). Then I took that a step farther, and said the outcome of Thor winning with a female judge, given the event is inside.
+
+# Conclusion
+
+With this data, it looks like we should choose shows where Thor can show to a female judge while showing indoors.  This is very interesting data to have.  It costs about $100 a weekend of showing (2 shows), plus travel expenses, grooming spaces, food, etc and of course, time.  So if we can narrow it down to shows with this criteria, we can better use our money to continue to win with Thor.  However, the data is really too close to make any hard and fast rules on what to do.  Probably proving that it is very subjective!
+
+I did learn a lot with this project, but I struggle with knowing when to use what equations, and how to get them to function in R.  I do find R to be very useful though.  I want to explore it more.  We used SAS and Tableau in other classes and those were both very robust programs that are harder to understand.  
+
+# Appendix 1: Full Data Set
+
+```{r table1, echo=FALSE, message=FALSE}
+
+knitr::kable(Thor_Data, quote = FALSE, row.names = T)
+```
+How to do this was found here:
+[Printing a Dataframe in R Markdown](https://stackoverflow.com/questions/61407548/rmarkdown-printing-a-dataframe)
+
+# Appendix 2: Another picture of Thor!
+```{r Photo 2, echo=FALSE}
+knitr::include_graphics('C:/Users/brney/Dropbox/Grad Program/Foundations of Data Analysis SEIS631/thor1.png')
+```
+
