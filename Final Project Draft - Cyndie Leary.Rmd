@@ -56,11 +56,52 @@ Thor_Data <- read_excel("Thor Data.xlsx")
 I found this instruction on the following website:
 [Importing Excel Files into R using readxl package](http://www.sthda.com/english/wiki/reading-data-from-excel-files-xls-xlsx-into-r)
 
-Thor won 12 times out of 52 shows.  So his probability of winning is 
+Thor won 12 times out of 52 shows.  Is this more or less than the overall expected value of winning? 
+
+Thor's Probability of winning in 52 events is:
 ```{r echo=TRUE}
 ProbThorWin <- 12/52
 ProbThorWin
 ```
+
+
+$$ Ho: $$ Thor wins the same amount of times as any other dog in the competition. Or ProbThorWin = Expectmean
+
+$$ Ha: $$ Thor wins more times than other dogs. Or ProbThorWin > Expectmean
+
+
+To determine this, I calculated the Expected number of wins given each probability for each event. 
+
+```{r echo=TRUE}
+ExpectWins <- mean(Thor_Data$`Overall Probability for any dog`)*(dim(Thor_Data)[1])
+ExpectWins
+```
+
+Since the expected wins is approximately 9, and Thor has won 12 times, he seems to be slightly more probable to win.  But I will continue to test that out.
+
+
+Calculating Standard Deviation of the probability of each event:
+
+```{r echo=TRUE}
+ThorStd <- sd(Thor_Data$`Overall Probability for any dog`)
+ThorStd
+```
+
+And the mean:
+
+```{r echo=TRUE}
+ExpectMean <- mean(Thor_Data$`Overall Probability for any dog`)
+ExpectMean
+```
+
+Calculating the z-score:
+```{r echo=TRUE}
+ThorzScore <- (ProbThorWin - ExpectMean)/ThorStd
+ThorzScore
+```
+
+This value shows that Thor's results are less than one standard deviation away from the expected wins mean.  So, that seems to close to call.
+
 
 Next, I wanted to count the number of times he had a male judge or a female judge.
 ```{r}
@@ -139,13 +180,6 @@ ProbThorWinFemaleOutside
 ProbThorWinMaleInside
 ProbThorWinMaleOutside
 ```
-I thought about trying to see how Thor stacked up against the overall probabilty, but I am not sure if I am calculating that correctly.  If I take the probability of winning at any event, and take the average, is that overall probability?  In my dataset, I have that calculated as 1(winner)/Dogs in BOB.  
-
-```{r}
-mean(1/Thor_Data$`Dogs in BOB`)
-```
-I do struggle with interpreting that.  I would look at that and say, any dog has about an 18% chance of winning. And based on what I calculated Thor's probabilty of winning based on the times he won in the 52 events (12/52), I show he has a 23% chance of winning.  But I am not sure if that is the correct way.  
-
 # Topics From Class
 
 ## R Markdown: 
@@ -156,17 +190,20 @@ I very briefly used Github in my Python class as well.  But mostly for pulling d
 
 ## Probabilty:
 Probability was obviously the basis of my project.  Although, I am still confused sometimes with probability versus proportions.  
+
 ## Joint Probabilites:
-While I was working on this I went back to the book, amd reviewed Joint Probabilities and created a table for myself to help check my answers.  I was trying to figure out how, without just uploading the data, to get it into R Markdown, but have not suceeded in that yet   
+While I was working on this I went back to the book, amd reviewed Joint Probabilities and created a table for myself to help check my answers.  I was trying to figure out how, without just uploading the data, to get it into R Markdown, but have not succeeded in that yet   
 
 ## Conditional Probabilities:
-Again, going to the book to confirm what I was calculating, I reviewed Conditional Probabalities that shows the outcome A (Thor Winning) give Condition B (Female Judge). Then I took that a step farther, and said the outcome of Thor winning with a female judge, given the event is inside.
+Again, going to the book to confirm what I was calculating, I reviewed Conditional Probabilities that shows the outcome A (Thor Winning) give Condition B (Female Judge). Then I took that a step farther, and said the outcome of Thor winning with a female judge, given the event is inside.
 
 # Conclusion
 
 With this data, it looks like we should choose shows where Thor can show to a female judge while showing indoors.  This is very interesting data to have.  It costs about $100 a weekend of showing (2 shows), plus travel expenses, grooming spaces, food, etc and of course, time.  So if we can narrow it down to shows with this criteria, we can better use our money to continue to win with Thor.  However, the data is really too close to make any hard and fast rules on what to do.  Probably proving that it is very subjective!
 
-I did learn a lot with this project, but I struggle with knowing when to use what equations, and how to get them to function in R.  I do find R to be very useful though.  I want to explore it more.  We used SAS and Tableau in other classes and those were both very robust programs that are harder to understand.  
+I did learn a lot with this project, but I struggle with knowing when to use what equations, and how to get them to function in R.  I do find R to be very useful though.  I want to explore it more.  We used SAS and Tableau in other classes and those were both very robust programs that are harder to understand. 
+
+I also took initial feedback from Nolan Sawchuk and added in information on the expected # of wins to see if that was helpful.
 
 # Appendix 1: Full Data Set
 
