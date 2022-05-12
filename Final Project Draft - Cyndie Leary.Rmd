@@ -3,6 +3,7 @@ title: "Final Project Draft"
 author: "Cyndie Leary"
 date: "5/3/2022"
 output: pdf_document
+urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
